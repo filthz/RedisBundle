@@ -69,3 +69,6 @@ public function registerBundles()
     );
 }
 ```
+
+### Step 4: Install Predis
+The `FilthRedisBundle` uses Predis, see https://github.com/nrk/predis for installation details
