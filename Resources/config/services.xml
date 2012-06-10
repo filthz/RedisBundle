@@ -9,7 +9,6 @@
         <service id="filth.redis.factory" class="Filth\RedisBundle\Factory\RedisEntityFactory">
             <argument type="service" id="service_container" />
         </service>
-        <!-- Selectionboxen Searchbox Ende -->
     </services>
 
 </container>
