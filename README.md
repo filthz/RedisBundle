@@ -147,3 +147,67 @@ filth_redis:
 ```
 
 We are ready to roll!
+
+Example
+=======
+
+Get the entity and set the required values:
+
+``` php
+    $redisClient  = $this->get('snc_redis.default_client');
+    $redisFactory = $this->get('filth.redis.factory');
+    $redisRepo    = new RedisRepository($redisClient);
+    
+    $picViewEntity = $redisFactory->getRedisEntityByAlias('EVENTPICTURE_VIEWS');
+    $picViewEntity->setEventID(123);
+    $picViewEntity->setEventPictureID(567);
+    
+    $redisRep->increase($picViewEntity);
+```
+
+Retrieve all Keys (f.e. different eventID or pictureID) for an Redis Entity:
+
+``` php
+    $redisClient  = $this->get('snc_redis.default_client');
+    $redisFactory = $this->get('filth.redis.factory');
+    $redisRepo    = new RedisRepository($redisClient);
+    
+    $picViewEntity = $redisFactory->getRedisEntityByAlias('EVENTPICTURE_VIEWS');
+    $keys = $redisRepo->getKeys($picViewEntity);
+```
+
+Retrieve an Redis Entity by key
+
+``` php
+    $redisClient  = $this->get('snc_redis.default_client');
+    $redisFactory = $this->get('filth.redis.factory');
+    $redisRepo    = new RedisRepository($redisClient);
+    
+    $keys = $redisRepo->getKeys($picViewEntity);
+    
+    foreach($keys as $key)
+    {
+        $redisEntity = $redisRepo->getRedisEntityByKey($key, $redisFactory);
+    }
+```
+
+$redisEntity will be an  Foo\Redis\EventPictureViewsRedisEntity Object and its values ($eventID, $eventPictureID and $value) 
+will be set automaticly by 'FilthRedisBundle'. You can access these values with the getter functions of the Entity:
+
+``` php
+    $redisClient  = $this->get('snc_redis.default_client');
+    $redisFactory = $this->get('filth.redis.factory');
+    $redisRepo    = new RedisRepository($redisClient);
+    
+    $keys = $redisRepo->getKeys($picViewEntity);
+    
+    foreach($keys as $key)
+    {
+        $redisEntity = $redisRepo->getRedisEntityByKey($key, $redisFactory);
+        
+        $eventID   = $redisEntity->getEventID();
+        $pictureID = $redisEntity->getEventPictureID();
+        $value     = $redisEntity->getValue();
+    }
+```
+
