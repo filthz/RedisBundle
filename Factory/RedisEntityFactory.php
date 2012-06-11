@@ -68,7 +68,7 @@ class RedisEntityFactory
      * @return mixed
      * @throws \Exception
      */
-    public function getRedisEntityByAlias($alias)
+    public function getEntityByAlias($alias)
     {
         if(isset($this->aliasArray[$alias])) return new $this->aliasArray[$alias]($this);
 
