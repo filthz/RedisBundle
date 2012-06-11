@@ -1,10 +1,9 @@
 <?php
 /**
- * Created by JetBrains PhpStorm.
- * User: Alex
- * Date: 29.05.12
- * Time: 08:53
- * To change this template use File | Settings | File Templates.
+ * Base implementation of an RedisEntity. All Entitys should extend this Class.
+ * On Instantiation this will check, if the Annotations are used correctly.
+ *
+ *
  */
 
 namespace Filth\RedisBundle\Entity;
@@ -25,27 +24,27 @@ class BaseRedisEntity implements RedisEntityInterface
         $this->key = $annotation->getRedisKey();
 
         // im key darf das Zeichen "|" und '*' nicht vorkommen!
-        if(strpos($this->key, '|') !== false) throw new \Exception('Der RedisKey darf das Zeichen | nicht enthalten!');
-        if(strpos($this->key, '*') !== false) throw new \Exception('Der RedisKey darf das Zeichen * nicht enthalten!');
-        if(strpos($this->key, '.') !== false) throw new \Exception('Der RedisKey darf das Zeichen . nicht enthalten!');
+        if(strpos($this->key, '|') !== false) throw new \Exception('The RedisKey may not contain the character \'|\'. Found in class: '.get_class($this));
+        if(strpos($this->key, '*') !== false) throw new \Exception('The RedisKey may not contain the character \'*\'. Found in class: '.get_class($this));
+        if(strpos($this->key, '.') !== false) throw new \Exception('The RedisKey may not contain the character \'.\'. Found in class: '.get_class($this));
 
         // make sure entity is build only from RedisEntityFactory!
         $class = explode('\\', get_class($called_from));
         $class = end($class);
-        if($class != 'RedisEntityFactory' && $class != 'RedisRepository') throw new \Exception('Redis Entity kann nicht direkt instanziiert werden! Sie müssen über die RedisEntityFactory Klasse geholt werden!');
+        if($class != 'RedisEntityFactory' && $class != 'RedisRepository') throw new \Exception('Redis Entity cannot be instantiated directly. Please use RedisEntityFactory!');
 
         // make sure entity has all the setters and getters!
         $requiredProps = $this->getRequiredProperties();
         $methods       = array_flip(get_class_methods($this));
         foreach($requiredProps as $field)
         {
-            if(!isset($methods['set'.ucfirst($field)])) throw new \Exception('Methode mit dem Namen: '.'set'.ucfirst($field).' fehlt in der Klasse: '.get_class($this) );
-            if(!isset($methods['get'.ucfirst($field)])) throw new \Exception('Methode mit dem Namen: '.'set'.ucfirst($field).' fehlt in der Klasse: '.get_class($this) );
+            if(!isset($methods['set'.ucfirst($field)])) throw new \Exception('Missing method: '.'set'.ucfirst($field).' in Class: '.get_class($this) );
+            if(!isset($methods['get'.ucfirst($field)])) throw new \Exception('Missing method: '.'set'.ucfirst($field).' in Class: '.get_class($this) );
         }
     }
 
     /**
-     * Hier kann ein Value gesetzt werden. Wird einer gesetzt, dann wird dieser Wert unter dem generierten Schlüssel geschrieben
+     * A value can be set here. If any is set, this will be stored under the generated key.
      *
      * @param $value
      */
@@ -54,18 +53,29 @@ class BaseRedisEntity implements RedisEntityInterface
         $this->value = $value;
     }
 
+    /**
+     * Value getter
+     *
+     * @return null
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * Base key getter. A Base key is the defined key in the entity with an attached '|'. This separates the key
+     * from all the values.
+     *
+     * @return string
+     */
     public function getBaseKey()
     {
         return $this->key.'|';
     }
 
     /**
-     * Gibt eine Liste der Felder, die als required markiert sind
+     * Will return a list of fields, which are marked as required in the entity.
      *
      * @return array
      */
@@ -80,7 +90,7 @@ class BaseRedisEntity implements RedisEntityInterface
         {
             $annotation = $reader->getPropertyAnnotation($property, get_class( new RedisAnnotation(array())) );
 
-            // annotation gesetzt
+            // annotation is set
             if(is_object($annotation))
             {
                 if($annotation->isRequired())
@@ -94,7 +104,7 @@ class BaseRedisEntity implements RedisEntityInterface
     }
 
     /**
-     * Bildet den vollen Key inkl der benötigten Werte. Vor dem Aufruf dieser Methode sollte validateRequiredFields() aufgerufen werden!
+     * Will create the full key including all the necessary values. Before calling this method  validateRequiredFields() should be called first!.
      *
      * @return string
      */
@@ -126,7 +136,7 @@ class BaseRedisEntity implements RedisEntityInterface
     }
 
     /**
-     * Prüft ob alle Felder mit der Annotation "required" tatsächlich gefüllt sind
+     * Will check, if all fields marked as "required" are set
      *
      * @return bool
      * @throws \Exception
@@ -148,10 +158,10 @@ class BaseRedisEntity implements RedisEntityInterface
                 {
                     $propertyName = $property->getName();
 
-                    if(! $property->isProtected() ) throw new \Exception('Alle Variablen, die die RedisAnnotation besitzen müssen als protected deklariert werden.
-                                            Bei der Variablen '.$propertyName.' in der Klasse '.get_class($this).' ist es nicht der Fall!');
+                    if(! $property->isProtected() ) throw new \Exception('All fields that have an RedisAnnotation must be protected!
+                                            Variable '.$propertyName.' in the class '.get_class($this).' is not protected!');
 
-                    if( $this->$propertyName == null) throw new \Exception('Operation nicht möglich, da '.$propertyName.' in der Klasse '.get_class($this).' als required markiert ist, aber nicht gesetzt wurde!');
+                    if( $this->$propertyName == null) throw new \Exception('Operation not possible as '.$propertyName.' in Class '.get_class($this).' ís marked as required but is not set!');
                 }
             }
         }

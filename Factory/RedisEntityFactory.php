@@ -1,18 +1,22 @@
 <?php
 /**
- * Factory Klasse, um Redis Entitys von einem bestimmten Typ (siehe Enums) zu erzeugen. Diese werden von der RedisRepository verwendet
+ * Factory class in order to get Redis Entitys. These are used by the RedisRepository then
  *
- * Example Usage:
-$f = new \VirtualNights\Common\DomainBundle\Redis\RedisEntityFactory();
-$g = new \VirtualNights\Common\DomainBundle\Redis\RedisRepository($this->get('snc_redis.default_client'));
-$c = $f->getRedisEntity($f::EventPictureViewsRedisEntity);
-$g->save($c);
+ * Example Usage in a controller:
  *
- * Created by JetBrains PhpStorm.
- * User: Alex
- * Date: 23.05.12
- * Time: 15:15
- * To change this template use File | Settings | File Templates.
+ * #/app/config/config.yml
+ * filth_redis:
+ *   entities:
+ *       - { alias: EVENTPICTURE_VIEWS, class: Foo\Redis\EventPictureViewsRedisEntity }
+ *
+ *
+ * $redisClient  = $this->get('snc_redis.default_client');
+ * $redisFactory = $this->get('filth.redis.factory');
+ * $redisRepo    = new RedisRepository($redisClient);
+ *
+ * $entity = $f->getRedisEntityByAlias('EVENTPICTURE_VIEWS');
+ * $redisRepo->save($entity);
+ *
  */
 
 namespace Filth\RedisBundle\Factory;
@@ -23,10 +27,10 @@ use Predis\Client;
 
 class RedisEntityFactory
 {
-    // hier ist ein mapping vorhanden - key zu EntityKlasse
+    // holds a mapping key -> entity class
     private $keyArray   = array();
 
-    // hier ist ein mapping vorhanden - alias zu EntityKlasse
+    // holds a mapping alias -> entity class
     private $aliasArray = array();
 
     public function __construct(Container &$container)
@@ -36,7 +40,7 @@ class RedisEntityFactory
     }
 
     /**
-     * Gibt die Entity, die sich aus dem übergebenen baseKey ableitet. Der Key muss aufbereitet übergeben werden (zB eventpic_views_{EVENTID}_{PICTUREID} )
+     * Returns an entity, which derives from the given BaseKey. (f.e. eventpic_views_{EVENTID}_{PICTUREID} )
      *
      * @param $baseKey
      */
@@ -48,7 +52,7 @@ class RedisEntityFactory
     }
 
     /**
-     * Gibt ein Mapping mit Key - EntityKlasse zurück
+     * Retuns a mapping with key - entityclass
      *
      * @return array
      */
@@ -58,7 +62,7 @@ class RedisEntityFactory
     }
 
     /**
-     * Gibt eine RedisEntity über den Alias zurück, der in der cofig.yml definiert wird
+     * Returns an RedisEntity with the given alias. Aliases are defined in config.yml
      *
      * @param $alias
      * @return mixed
@@ -66,7 +70,6 @@ class RedisEntityFactory
      */
     public function getRedisEntityByAlias($alias)
     {
-        // hiermit stellen wir sicher, dass nur valide enums verwendet werden
         if(isset($this->aliasArray[$alias])) return new $this->aliasArray[$alias]($this);
 
         throw new \Exception('Alias '.$alias.' ist nicht bekannt. Mögliche Enums sind: '.implode(', ', array_keys($this->aliasArray)));

@@ -1,14 +1,8 @@
 <?php
 /**
- * Beinhaltet alle Operationen, die Redis betreffen.
- * Es sollten keine Keys direkt aus Controllern gelesen / geschrieben werden um zu vermeiden, dass Redis-Keys auf das ganze System verteilt dezentral
- * eingesetzt werden
+ * Contains all basic operations needed for Redis
+ * No keys should be read / written directly from controllers, in order to avoid spreading the keys over the system.
  *
- * Created by JetBrains PhpStorm.
- * User: Alex
- * Date: 23.05.12
- * Time: 15:15
- * To change this template use File | Settings | File Templates.
  */
 
 namespace Filth\RedisBundle\Entity;
@@ -27,8 +21,8 @@ class RedisRepository
     }
 
     /**
-     * Erhöht den Wert in Redis für die übergenene RedisEntity um 1.
-     * Der Key wird aus den Informationen in der RedisEntity gebildet
+     * Increases the value for the given RedisEntity by 1.
+     * The key will be generated out of the data in the Entity
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
@@ -37,12 +31,12 @@ class RedisRepository
         // make sure all required fields are set in redis entity
         $redisEntity->validateRequiredFields();
 
-        // betroffenen key in redis erhöhen
+        // increase key
         $this->redis->incr($redisEntity->getFullKey());
     }
 
     /**
-     * Holt alle Keys aus Redis, die sich auf die übergebene redisEntity beziehen
+     * Will get all keys out Redis that can be created with the given RedisEntity
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
@@ -59,9 +53,9 @@ class RedisRepository
     }
 
     /**
-     * Holt eine RedisEntity, die zum übergebenen key passt. Der Key kann nur der Base-Key sein oder ein Key, der Werte enthällt.
-     *
-     * Wenn der Key werte enthällt (zB eventpic_views_{EVENTID}_{PICTUREID}|123.456) dann wird die entity mit den Werten gefüllt.
+     * Will get a RedisEntity that matches the given key. The Key can be the BaseKey or a Key with values.
+     * If there are values in key (f.e. eventpic_views_{EVENTID}_{PICTUREID}|123.456) then the value will be filled with these values.
+     * They can be accessed with the Entity setters / getters.
      *
      * @param $key
      * @param RedisEntityFactory $fac
@@ -71,26 +65,26 @@ class RedisRepository
     {
         if($key == null) return false;
 
-        // key aufbereiten
+        // prepare key
         $parts   = explode('|', $key);
         $baseKey = $parts[0];
         $values  = $parts[1];
 
-        // entity mit dem baseKey holen
+        // get entity with basekey
         $entity = $fac->getEntityByKey($baseKey);
 
-        // entity mit werten füllen
+        // fill values
         if($entity)
         {
             if($values)
             {
-                // werte holen (sind punkt-getrennt)
+                // get values (. separated)
                 $values = explode('.', $values);
 
-                // liste der required felder bekommen
+                // get list of required fields
                 $fields = $entity->getRequiredProperties();
 
-                // werte in die felder setzen
+                // set values
                 $i = 0;
                 foreach($values as $value)
                 {
@@ -104,7 +98,7 @@ class RedisRepository
                 }
             }
 
-            // redis value holen
+            // get redis value
             $entity->setValue($this->redis->get($key));
         }
 
@@ -112,7 +106,7 @@ class RedisRepository
     }
 
     /**
-     * Speichert die Entity in Redis
+     * Store entity in Redis
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
@@ -127,7 +121,7 @@ class RedisRepository
     }
 
     /**
-     * Gibt den Wert zurück, der unter der gegebenen RedisEntity abgelegt ist
+     * Returns the value that is stored in the given entity
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
@@ -142,7 +136,7 @@ class RedisRepository
     }
 
     /**
-     * Löscht ein RedisEntity aus dem Speicher
+     * Delete an Entity from Redis
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
