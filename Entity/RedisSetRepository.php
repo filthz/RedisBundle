@@ -12,7 +12,7 @@ use Filth\RedisBundle\Entity\RedisEntityInterface;
 use Filth\RedisBundle\Factory\RedisEntityFactory;
 
 
-class RedisRepository
+class RedisSetRepository
 {
     private $redis = null;
 
@@ -33,24 +33,17 @@ class RedisRepository
         $redisEntity->validateRequiredFields();
 
         // increase key
-        $this->redis->incr($redisEntity->getFullKey());
+        $this->redis->zincrby($redisEntity->getTable(), 1, $redisEntity->getFullKey());
     }
 
     /**
-     * Will get all keys out Redis that can be created with the given RedisEntity
+     * Will get all keys out Redis that are stored in the table defined in the given RedisEntity
      *
      * @param Entity\RedisEntityInterface $redisEntity
      */
     public function getKeys(RedisEntityInterface $redisEntity)
     {
-        // get base key
-        $key = $redisEntity->getBaseKey();
-
-        // add wildcard
-        $key = $key.'*';
-
-        // get keys
-        return $this->redis->keys($key);
+        return $this->redis->zrange($redisEntity->getTable(), 0, -1);
     }
 
     /**
@@ -99,7 +92,7 @@ class RedisRepository
             }
 
             // get redis value
-            $entity->setValue($this->redis->get($key));
+            $entity->setValue($this->redis->zscore($entity->getTable(), $key));
         }
 
         return $entity;
@@ -115,9 +108,7 @@ class RedisRepository
         // make sure all required fields are set in redis entity
         $redisEntity->validateRequiredFields();
 
-        $fullKey = $redisEntity->getFullKey();
-
-        $this->redis->set($fullKey, $redisEntity->getValue());
+        $this->redis->zadd($redisEntity->getTable(), $redisEntity->getValue(), $redisEntity->getFullKey());
     }
 
     /**
@@ -130,9 +121,7 @@ class RedisRepository
         // make sure all required fields are set in redis entity
         $redisEntity->validateRequiredFields();
 
-        $fullKey = $redisEntity->getFullKey();
-
-        return $this->redis->get($fullKey);
+        return $this->redis->zscore($redisEntity->getTable(), $redisEntity->getFullKey());
     }
 
     /**
@@ -145,9 +134,7 @@ class RedisRepository
         // make sure all required fields are set in redis entity
         $redisEntity->validateRequiredFields();
 
-        $fullKey = $redisEntity->getFullKey();
-
-        $this->redis->del($fullKey);
+        $this->redis->zrem($redisEntity->getTable(), $redisEntity->getFullKey());
     }
 
 }

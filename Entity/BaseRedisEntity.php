@@ -14,6 +14,7 @@ class BaseRedisEntity implements RedisEntityInterface
 {
     private $key    = null;
     private $value  = null;
+    private $table  = null;
 
     public function __construct($called_from)
     {
@@ -22,6 +23,9 @@ class BaseRedisEntity implements RedisEntityInterface
 
         if(!is_object($annotation) || $annotation->getRedisKey() == null) throw new \Exception('No RedisEntityKey defined in ('.get_class($this).'). Please use RedisEntityFactory for getting RedisEntitys or check the Factory class for Errors!');
         $this->key = $annotation->getRedisKey();
+
+        // set table name
+        if(!is_object($annotation) || $annotation->getTable() != null) $this->table = $annotation->getTable();
 
         // im key darf das Zeichen "|" und '*' nicht vorkommen!
         if(strpos($this->key, '|') !== false) throw new \Exception('The RedisKey may not contain the character \'|\'. Found in class: '.get_class($this));
@@ -167,6 +171,11 @@ class BaseRedisEntity implements RedisEntityInterface
         }
 
         return true;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
     }
 
 }

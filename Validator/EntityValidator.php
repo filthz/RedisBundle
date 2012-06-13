@@ -21,6 +21,7 @@ class EntityValidator
     {
         $keyArray   = array();
         $aliasArray = array();
+        $tableArray = array();
 
         foreach ($this->entities as $entity) {
 
@@ -28,7 +29,11 @@ class EntityValidator
             $reader = new \Doctrine\Common\Annotations\AnnotationReader();
             $annotation = $reader->getClassAnnotation($reflectionClass, new RedisAnnotation(array()));
 
+            // redis key of entity
             $redisKey = $annotation->getRedisKey();
+
+            // table name of entity
+            $tableName = $annotation->getTable();
 
             // check if a key or alias was redefined. if so throw an exception
             if($redisKey != null)
@@ -43,6 +48,16 @@ class EntityValidator
                 else
                 {
                     throw new \Exception('Redis Key: '.$redisKey.' was redefined. Last seen in class: '.$entity['class'].'. Please fix!');
+                }
+            }
+
+            // check if a table name was redefined. if so throw an exception
+            if($tableName != null)
+            {
+                if(!isset($tableArray[$tableName])) $tableArray[$tableName] = $tableName;
+                else
+                {
+                    throw new \Exception('Redis Table: '.$tableName.' was redefined. Last seen in class: '.$entity['class'].'. Please fix!');
                 }
             }
         }

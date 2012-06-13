@@ -9,5 +9,6 @@ interface RedisEntityInterface
     public function getFullKey();
     public function getValue();
     public function setValue($value);
+    public function getTable();
     public function validateRequiredFields();
 }

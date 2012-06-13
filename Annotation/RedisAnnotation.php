@@ -7,6 +7,7 @@ class RedisAnnotation extends Annotation
 {
     public $required  = false;
     public $redis_key = null;
+    public $table     = null;
 
     public function isRequired()
     {
@@ -16,5 +17,10 @@ class RedisAnnotation extends Annotation
     public function getRedisKey()
     {
         return $this->redis_key;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
     }
 }
