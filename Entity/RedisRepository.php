@@ -10,17 +10,11 @@ namespace Filth\RedisBundle\Entity;
 use Predis\Client;
 use Filth\RedisBundle\Entity\RedisEntityInterface;
 use Filth\RedisBundle\Factory\RedisEntityFactory;
+use Filth\RedisBundle\Entity\BaseRedisRepository;
 
 
-class RedisRepository
+class RedisRepository extends BaseRedisRepository
 {
-    private $redis = null;
-
-    public function __construct(Client $redis)
-    {
-        $this->redis = $redis;
-    }
-
     /**
      * Increases the value for the given RedisEntity by 1.
      * The key will be generated out of the data in the Entity

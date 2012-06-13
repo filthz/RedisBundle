@@ -16,6 +16,8 @@ class BaseRedisEntity implements RedisEntityInterface
     private $value  = null;
     private $table  = null;
 
+    const VALUE_SEPARATOR = '^filth.redis.separator^';
+
     public function __construct($called_from)
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
@@ -30,7 +32,6 @@ class BaseRedisEntity implements RedisEntityInterface
         // im key darf das Zeichen "|" und '*' nicht vorkommen!
         if(strpos($this->key, '|') !== false) throw new \Exception('The RedisKey may not contain the character \'|\'. Found in class: '.get_class($this));
         if(strpos($this->key, '*') !== false) throw new \Exception('The RedisKey may not contain the character \'*\'. Found in class: '.get_class($this));
-        if(strpos($this->key, '.') !== false) throw new \Exception('The RedisKey may not contain the character \'.\'. Found in class: '.get_class($this));
 
         // make sure entity is build only from RedisEntityFactory!
         $class = explode('\\', get_class($called_from));
@@ -131,7 +132,7 @@ class BaseRedisEntity implements RedisEntityInterface
                 if($annotation->isRequired())
                 {
                     $propertyName = $property->getName();
-                    $fullKey .= $this->$propertyName.'.';
+                    $fullKey .= $this->$propertyName.self::VALUE_SEPARATOR;
                 }
             }
         }
