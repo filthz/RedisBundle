@@ -16,9 +16,7 @@ class BaseRedisEntity implements RedisEntityInterface
     private $value  = null;
     private $table  = null;
 
-    private $dynamicTableFields = array();
-
-    const VALUE_SEPARATOR = '^filth.redis.separator^';
+    const VALUE_SEPARATOR = '^FRS^';
 
     public function __construct($called_from)
     {
