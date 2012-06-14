@@ -16,6 +16,8 @@ class BaseRedisEntity implements RedisEntityInterface
     private $value  = null;
     private $table  = null;
 
+    private $dynamicTableFields = array();
+
     const VALUE_SEPARATOR = '^filth.redis.separator^';
 
     public function __construct($called_from)
@@ -27,7 +29,14 @@ class BaseRedisEntity implements RedisEntityInterface
         $this->key = $annotation->getRedisKey();
 
         // set table name
-        if(!is_object($annotation) || $annotation->getTable() != null) $this->table = $annotation->getTable();
+        if(!is_object($annotation) || $annotation->getTable() != null)
+        {
+            // make sure all variables in tablename are used correctly
+            if( substr_count($annotation->getTable(), '{') != substr_count($annotation->getTable(), '}') )
+                throw new \Exception('Unclosed or unopened variable in Tablename. Make sure all Variables in Tablename are used like {FOO}!');
+
+            $this->table = $annotation->getTable();
+        }
 
         // im key darf das Zeichen "|" und '*' nicht vorkommen!
         if(strpos($this->key, '|') !== false) throw new \Exception('The RedisKey may not contain the character \'|\'. Found in class: '.get_class($this));
@@ -174,8 +183,54 @@ class BaseRedisEntity implements RedisEntityInterface
         return true;
     }
 
+    /**
+     * This will inject variable values into table name if required
+     *
+     * @throws \Exception
+     */
+    private function prepareTableName()
+    {
+        $offset = 0;
+        $table  = strtolower($this->table);
+
+        while(substr_count($this->table, '{', $offset) > 0)
+        {
+            $offset = strpos($this->table, '{', $offset);
+            $next  = strpos($this->table, '}', $offset);
+
+            $varName = strtolower( substr($this->table, $offset + 1 , $next - $offset - 1 ) );
+
+            $reflClass = new \ReflectionClass(get_class($this));
+            $properties = $reflClass->getProperties();
+            foreach($properties as $property)
+            {
+               if(strtolower($property->getName()) == $varName)
+               {
+                   $getter = 'get'.$property->getName();
+                   $value  = $this->$getter();
+
+                   if(!isset($value)) throw new \Exception('Entity '.get_class($this).' has an dynamic Tablename, but required getter '.$getter.' did not return a value!');
+
+                   $table = str_replace('{'.$varName.'}', $this->$getter(), $table);
+               }
+            }
+
+            $offset = $offset + 1;
+        }
+
+        $this->table = $table;
+    }
+
+    /**
+     * Will return the tablename of the Entity.
+     *
+     * @return null
+     */
     public function getTable()
     {
+        // inject table name variables if needed
+        $this->prepareTableName();
+
         return $this->table;
     }
 
