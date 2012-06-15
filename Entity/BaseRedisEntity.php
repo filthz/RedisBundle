@@ -196,22 +196,10 @@ class BaseRedisEntity implements RedisEntityInterface
             $offset = strpos($this->table, '{', $offset);
             $next  = strpos($this->table, '}', $offset);
 
-            $varName = strtolower( substr($this->table, $offset + 1 , $next - $offset - 1 ) );
+            $varName = substr($this->table, $offset + 1 , $next - $offset - 1 ) ;
 
-            $reflClass = new \ReflectionClass(get_class($this));
-            $properties = $reflClass->getProperties();
-            foreach($properties as $property)
-            {
-               if(strtolower($property->getName()) == $varName)
-               {
-                   $getter = 'get'.$property->getName();
-                   $value  = $this->$getter();
-
-                   if(!isset($value)) throw new \Exception('Entity '.get_class($this).' has an dynamic Tablename, but required getter '.$getter.' did not return a value!');
-
-                   $table = str_replace('{'.$varName.'}', $this->$getter(), $table);
-               }
-            }
+            if(!isset($this->$varName)) throw new \Exception('Entity '.get_class($this).' has an dynamic Tablename, but required value "'.$varName.'" is not set!');
+            $table = str_replace('{'.$varName.'}', $this->$varName, $table);
 
             $offset = $offset + 1;
         }
