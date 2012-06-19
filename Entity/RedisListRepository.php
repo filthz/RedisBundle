@@ -26,6 +26,7 @@ class RedisListRepository extends BaseRedisRepository
         return $this->redis->LRANGE($redisEntity->getTable(), 0, -1);
     }
 
+
     /**
      * Insert all the specified $redisEntity at the tail of the list
      *
