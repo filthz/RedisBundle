@@ -37,7 +37,7 @@ class RedisHashRepository extends BaseRedisRepository
      */
     public function getKeys(RedisEntityInterface $redisEntity)
     {
-        return $this->redis->hkeys($redisEntity->getTable());
+        return $this->redis->hgetall($redisEntity->getTable());
     }
 
     /**
