@@ -3,6 +3,7 @@ namespace Filth\RedisBundle\Annotation;
 
 use Doctrine\Common\Annotations\Annotation;
 
+/** @Annotation */
 class RedisAnnotation extends Annotation
 {
     public $required  = false;
