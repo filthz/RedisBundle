@@ -1,0 +1,28 @@
+{
+    "name": "filth/redis-bundle",
+    "type": "symfony-bundle",
+    "description": "Provides OO-Redis handling",
+    "keywords": ["redis", "oo", "object", "symfony2", "bundle", "filth"],
+    "homepage": "https://github.com/filthz/RedisBundle",
+    "license": "MIT",
+
+    "authors": [
+        {
+            "name": "Filth",
+            "email": "hury@gmx.net",
+        },
+    ],
+
+    "require": {
+        "php": ">=5.3.2",
+        "snc/redis-bundle": "2.1.x-dev",
+    },
+
+    "autoload": {
+        "psr-0": {
+            "Filth\\RedisBundle": ""
+        }
+    },
+
+    "target-dir": "Filth/RedisBundle"
+}
