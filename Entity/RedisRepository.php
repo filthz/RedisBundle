@@ -31,6 +31,21 @@ class RedisRepository extends BaseRedisRepository
     }
 
     /**
+     * Decreases the value for the given RedisEntity by 1.
+     * The key will be generated out of the data in the Entity
+     *
+     * @param Entity\RedisEntityInterface $redisEntity
+     */
+    public function decrease(RedisEntityInterface $redisEntity)
+    {
+        // make sure all required fields are set in redis entity
+        $redisEntity->validateRequiredFields();
+
+        // increase key
+        $this->redis->decr($redisEntity->getFullKey());
+    }
+
+    /**
      * Will get all keys out Redis that can be created with the given RedisEntity
      *
      * @param Entity\RedisEntityInterface $redisEntity
