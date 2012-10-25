@@ -173,7 +173,7 @@ class BaseRedisEntity implements RedisEntityInterface
                     if(! $property->isProtected() ) throw new \Exception('All fields that have an RedisAnnotation must be protected!
                                             Variable '.$propertyName.' in the class '.get_class($this).' is not protected!');
 
-                    if( $this->$propertyName == null) throw new \Exception('Operation not possible as '.$propertyName.' in Class '.get_class($this).' ís marked as required but is not set!');
+                    if( $this->$propertyName === null) throw new \Exception('Operation not possible as '.$propertyName.' in Class '.get_class($this).' ís marked as required but is not set!');
                 }
             }
         }
@@ -218,6 +218,16 @@ class BaseRedisEntity implements RedisEntityInterface
         $this->prepareTableName();
 
         return $this->table;
+    }
+
+    public function setKey($key)
+    {
+        $this->key = $key;
+    }
+
+    public function getKey()
+    {
+        return $this->key;
     }
 
 }
