@@ -19,11 +19,13 @@ class RedisListRepository extends BaseRedisRepository
     /**
      * Will get all keys out Redis that are stored in the table defined in the given RedisEntity
      *
-     * @param Entity\RedisEntityInterface $redisEntity
+     * @param RedisEntityInterface $redisEntity
+     * @param int $startOffset - default 0
+     * @param $numElements     - default -1 : get all Elements
      */
-    public function getKeys(RedisEntityInterface $redisEntity)
+    public function getKeys(RedisEntityInterface $redisEntity, $startOffset = 0, $numElements = -1)
     {
-        return $this->redis->LRANGE($redisEntity->getTable(), 0, -1);
+        return $this->redis->LRANGE($redisEntity->getTable(), $startOffset, $numElements);
     }
 
 
