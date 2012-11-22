@@ -56,7 +56,7 @@ class RedisListRepository extends BaseRedisRepository
      */
     public function getLength(RedisEntityInterface $redisEntity)
     {
-        $this->redis->LLEN($redisEntity->getTable());
+        return $this->redis->LLEN($redisEntity->getTable());
     }
 
     /**
