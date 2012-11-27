@@ -2,7 +2,6 @@
 /**
  * Contains all basic operations needed for Redis Lists
  * No keys should be read / written directly from controllers, in order to avoid spreading the keys over the system.
- *
  */
 
 namespace Filth\RedisBundle\Entity;
@@ -11,7 +10,6 @@ use Predis\Client;
 use Filth\RedisBundle\Entity\RedisEntityInterface;
 use Filth\RedisBundle\Factory\RedisEntityFactory;
 use Filth\RedisBundle\Entity\BaseRedisRepository;
-
 
 class RedisListRepository extends BaseRedisRepository
 {
@@ -27,7 +25,6 @@ class RedisListRepository extends BaseRedisRepository
     {
         return $this->redis->LRANGE($redisEntity->getTable(), $startOffset, $numElements);
     }
-
 
     /**
      * Insert all the specified $redisEntity at the tail of the list
@@ -56,7 +53,7 @@ class RedisListRepository extends BaseRedisRepository
      */
     public function getLength(RedisEntityInterface $redisEntity)
     {
-        $this->redis->LLEN($redisEntity->getTable());
+        return $this->redis->LLEN($redisEntity->getTable());
     }
 
     /**
@@ -67,6 +64,6 @@ class RedisListRepository extends BaseRedisRepository
      */
     public function getElementAt(RedisEntityInterface $redisEntity, $index)
     {
-        $this->redis->LINDEX($redisEntity->getTable(), $index);
+        return $this->redis->LINDEX($redisEntity->getTable(), $index);
     }
 }
