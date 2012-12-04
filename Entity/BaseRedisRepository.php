@@ -67,7 +67,8 @@ class BaseRedisRepository
                 $values = explode(BaseRedisEntity::VALUE_SEPARATOR, $values);
 
                 // get list of required fields
-                $fields = $entity->getRequiredProperties();
+                //$fields = $entity->getRequiredProperties();
+                $fields = $entity->getProperties();
 
                 // set values
                 $i = 0;

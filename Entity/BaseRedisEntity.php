@@ -115,6 +115,30 @@ class BaseRedisEntity implements RedisEntityInterface
         return $requiredProperties;
     }
 
+
+    /**
+     * Returns all properties of an Entity
+     *
+     * @return array
+     */
+    public function getProperties()
+    {
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+        $reflClass = new \ReflectionClass(get_class($this));
+
+        $properties = $reflClass->getProperties();
+        $requiredProperties = array();
+        foreach($properties as $property)
+        {
+            $annotation = $reader->getPropertyAnnotation($property, get_class( new RedisAnnotation(array())) );
+
+            // annotation is set
+            if(is_object($annotation)) $requiredProperties[] = $property->getName();
+        }
+
+        return $requiredProperties;
+    }
+
     /**
      * Will create the full key including all the necessary values. Before calling this method  validateRequiredFields() should be called first!.
      *
@@ -136,11 +160,8 @@ class BaseRedisEntity implements RedisEntityInterface
             // annotation gesetzt
             if(is_object($annotation))
             {
-                if($annotation->isRequired())
-                {
-                    $propertyName = $property->getName();
-                    $fullKey .= $this->$propertyName.self::VALUE_SEPARATOR;
-                }
+                $propertyName = $property->getName();
+                $fullKey .= $this->$propertyName.self::VALUE_SEPARATOR;
             }
         }
 
