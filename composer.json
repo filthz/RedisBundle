@@ -15,7 +15,7 @@
 
     "require": {
         "php": ">=5.3.2",
-        "snc/redis-bundle": "2.1.x-dev"
+        "snc/redis-bundle": "1.1.x"
     },
 
     "autoload": {
